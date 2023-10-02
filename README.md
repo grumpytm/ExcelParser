@@ -16,10 +16,10 @@ try
             SheetName = "Sheet1",
             ColumnIndexes = new List<int> { 0, 1, 2, 5, 9 }
         }
-
-        var parserItems = new ParserItems("MyExcelFile.xlsx", sheetDetails);
-        DataTable dataTable = ParseSheet<DataTable>(parserItems);
     };
+
+    var parserItems = new ParserItems("MyExcelFile.xlsx", sheetDetails);
+    DataTable dataTable = ParseSheet<DataTable>(parserItems);
 }
 catch (Exception ex)
 {
