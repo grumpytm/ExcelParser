@@ -46,13 +46,17 @@ try
 
     var parserItems = new ParserItems("MyExcelFile.xlsx", sheetDetails);
     DataSet dataSet = ParseSheet<DataSet>(parserItems);
+    var sheet1 = dataSet.Tables["Sheet1"];
+    var sheet2 = dataSet.Tables["Sheet2"];
+
 }
 catch (Exception ex)
 {
     MessageBox.Show($"{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 }
 ```
-A DataSet will be returned instead of DataTable, and each parsed sheet can be accessed like dataSet.Tables["Sheet1"] and so on.
+> [!NOTE]  
+> A DataSet is returned instead of DataTable, and each parsed sheet can be accessed like dataSet.Tables["Sheet1"] and so on.
 
 ## To do:
 - [ ] add some async magic so app won't hang while data is parsed?
