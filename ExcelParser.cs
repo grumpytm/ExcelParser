@@ -1,4 +1,7 @@
 using System.Data;
+using System.Diagnostics;
+using System.Globalization;
+using NPOI.SS.Formula;
 
 /* Third party */
 using NPOI.SS.UserModel;
@@ -77,64 +80,64 @@ public class ExcelParser
         }
     }
 
-        private static void PopulateDataTable(ISheet sheet, string sheetName, List<int> columnIndexes, DataTable dataTable)
+    private static void PopulateDataTable(ISheet sheet, string sheetName, List<int> columnIndexes, DataTable dataTable)
+    {
+        if (sheet == null)
+            throw new ArgumentException($"Error in configuration, '{sheetName}' sheet does not exist in the workbook.");
+
+        var headerRow = sheet.GetRow(0);
+        if (headerRow == null)
+            throw new ArgumentException($"Sheet '{sheetName}' has no header row.");
+
+        if (columnIndexes == null)
         {
-            if (sheet == null)
-                throw new ArgumentException($"Error in configuration, '{sheetName}' sheet does not exist in the workbook.");
-
-            var headerRow = sheet.GetRow(0);
-            if (headerRow == null)
-                throw new ArgumentException($"Sheet '{sheetName}' has no header row.");
-
-            if (columnIndexes == null)
+            foreach (ICell headerCell in sheet.GetRow(0).Cells)
             {
-                foreach (ICell headerCell in sheet.GetRow(0).Cells)
-                {
-                    string columnName = headerCell.StringCellValue;
-                    dataTable.Columns.Add(columnName, typeof(string));
-                }
-
-                for (int i = 1; i <= sheet.LastRowNum; i++)
-                {
-                    IRow row = sheet.GetRow(i);
-                    DataRow dataRow = dataTable.NewRow();
-
-                    foreach (DataColumn dataColumn in dataTable.Columns)
-                    {
-                        int columnIndex = dataColumn.Ordinal;
-                        ICell cell = row.GetCell(columnIndex);
-
-                        if (cell != null)
-                            dataRow[columnIndex] = cell.ToString();
-                    }
-
-                    dataTable.Rows.Add(dataRow);
-                }
+                string columnName = headerCell.StringCellValue;
+                dataTable.Columns.Add(columnName, typeof(string));
             }
-            else
+
+            for (int i = 1; i <= sheet.LastRowNum; i++)
             {
-                foreach (var columnIndex in columnIndexes)
+                IRow row = sheet.GetRow(i);
+                DataRow dataRow = dataTable.NewRow();
+
+                foreach (DataColumn dataColumn in dataTable.Columns)
                 {
-                    var columnName = headerRow.GetCell(columnIndex).StringCellValue;
-                    dataTable.Columns.Add(columnName);
+                    int columnIndex = dataColumn.Ordinal;
+                    ICell cell = row.GetCell(columnIndex);
+                    var cellValue = GetCellValue(cell);
+                    dataRow[columnIndex] = cellValue;
                 }
 
-                for (var i = 1; i <= sheet.LastRowNum; i++)
-                {
-                    DataRow dataRow = dataTable.NewRow();
-                    IRow row = sheet.GetRow(i);
-                    foreach (var columnIndex in columnIndexes)
-                    {
-                        ICell cell = row.GetCell(columnIndex);
-                        var cellValue = GetCellValue(cell);
-                        int position = columnIndexes.IndexOf(columnIndex);
-                        dataRow[position] = cellValue;
-                    }
-
-                    dataTable.Rows.Add(dataRow);
-                }
+                dataTable.Rows.Add(dataRow);
             }
         }
+        else
+        {
+            foreach (var columnIndex in columnIndexes)
+            {
+                var columnName = headerRow.GetCell(columnIndex).StringCellValue;
+                dataTable.Columns.Add(columnName);
+            }
+
+            for (var i = 1; i <= sheet.LastRowNum; i++)
+            {
+                DataRow dataRow = dataTable.NewRow();
+                IRow row = sheet.GetRow(i);
+
+                foreach (int no in columnIndexes)
+                {
+                    ICell cell = row.GetCell(no);
+                    var cellValue = GetCellValue(cell);
+                    int columnIndex = columnIndexes.IndexOf(no);
+                    dataRow[columnIndex] = cellValue;
+                }
+
+                dataTable.Rows.Add(dataRow);
+            }
+        }
+    }
 
     private static object? GetCellValue(ICell cell)
     {
@@ -145,15 +148,21 @@ public class ExcelParser
         {
             case CellType.Unknown:
             case CellType.Blank:
-                return null;
+                return cell.ToString();
             case CellType.Numeric:
-                return cell.NumericCellValue;
+                if (DateUtil.IsCellDateFormatted(cell))
+                    return cell.DateCellValue;
+                else
+                    return cell.NumericCellValue;
             case CellType.String:
                 return cell.StringCellValue;
             case CellType.Boolean:
                 return cell.BooleanCellValue;
             case CellType.Error:
                 return cell.ErrorCellValue;
+            case CellType.Formula:
+                cell.SetCellType(cell.CachedFormulaResultType);
+                return GetCellValue(cell);
             default:
                 return null;
         }
