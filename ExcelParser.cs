@@ -2,7 +2,6 @@ using System.Data;
 
 /* Third party */
 using NPOI.SS.UserModel;
-using static ExcelParser;
 
 public class ExcelParser
 {
@@ -141,40 +140,20 @@ public class ExcelParser
     {
         if (cell == null)
             return null;
+
         switch (cell.CellType)
         {
-            case (CellType.Unknown | CellType.Blank):
+            case CellType.Unknown:
+            case CellType.Blank:
                 return null;
             case CellType.Numeric:
-                if (DateUtil.IsCellDateFormatted(cell))
-                    return cell.DateCellValue;
-                else
-                    return cell.NumericCellValue;
+                return cell.NumericCellValue;
             case CellType.String:
                 return cell.StringCellValue;
             case CellType.Boolean:
                 return cell.BooleanCellValue;
             case CellType.Error:
                 return cell.ErrorCellValue;
-            case CellType.Formula:
-                switch (cell.CachedFormulaResultType)
-                {
-                    case CellType.Blank:
-                        return null;
-                    case CellType.Boolean:
-                        return cell.BooleanCellValue;
-                    case CellType.Numeric:
-                        if (DateUtil.IsCellDateFormatted(cell))
-                            return cell.DateCellValue;
-                        else
-                            return cell.NumericCellValue;
-                    case CellType.String:
-                        return cell.StringCellValue;
-                    case CellType.Error:
-                        return cell.ErrorCellValue;
-                    default:
-                        return null;
-                }
             default:
                 return null;
         }
