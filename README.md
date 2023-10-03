@@ -3,7 +3,7 @@ I needed something out of the box to parse an Excel file via NPOI library withou
 
 ## Sample usage:
 > [!NOTE]  
-> While SheetName is mandatory, the ColumnIndexes isn't, so if it's missing then all columns from said sheet will be parsed.
+> While SheetName is mandatory, the ColumnIndexes isn't, so if it's missing then all columns from said sheet will be parsed. Keep in mind that in NPOI indexes start with 0 and not with 1, meaning A1 for example is index 0.
 
 To parse a single sheet:
 ```
@@ -56,8 +56,11 @@ catch (Exception ex)
 }
 ```
 > [!NOTE]  
-> A DataSet is returned instead of DataTable, and each parsed sheet can be accessed like dataSet.Tables["Sheet1"] and so on.
+> A DataSet is returned instead of DataTable, and each parsed sheet can be accessed via dataSet.Tables["Sheet1"] and so on.
 
 ## To do:
 - [ ] add some async magic so app won't hang while data is parsed?
 - [ ] switch to IEnumerable\<T\> instead of DataTable for multiple reasons (strong typing, lazy loading, LINQ, performance to name a few)
+- [x] handle cells containing a formula and obtain the formula's result via CachedFormulaResultType and assign the proper cell type
+- [x] ignore the indexes that can't be found in the sheet's headers and result will maintain the order specified in ColumnIndexes
+- [ ] add custom headers instead of the ones that are read from the sheet
