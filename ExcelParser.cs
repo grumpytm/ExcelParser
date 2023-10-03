@@ -1,7 +1,4 @@
 using System.Data;
-using System.Diagnostics;
-using System.Globalization;
-using NPOI.SS.Formula;
 
 /* Third party */
 using NPOI.SS.UserModel;
@@ -115,7 +112,10 @@ public class ExcelParser
         }
         else
         {
-            foreach (var columnIndex in columnIndexes)
+            List<ICell> headerCells = sheet.GetRow(0).Cells;
+            var columnIntersection = columnIndexes.Where(item => headerCells.Select(i => i.ColumnIndex).Contains(item)).ToList();
+
+            foreach (int columnIndex in columnIntersection)
             {
                 var columnName = headerRow.GetCell(columnIndex).StringCellValue;
                 dataTable.Columns.Add(columnName);
@@ -126,12 +126,12 @@ public class ExcelParser
                 DataRow dataRow = dataTable.NewRow();
                 IRow row = sheet.GetRow(i);
 
-                foreach (int no in columnIndexes)
+                foreach (int columnIndex in columnIntersection)
                 {
-                    ICell cell = row.GetCell(no);
+                    ICell cell = row.GetCell(columnIndex);
                     var cellValue = GetCellValue(cell);
-                    int columnIndex = columnIndexes.IndexOf(no);
-                    dataRow[columnIndex] = cellValue;
+                    int position = columnIntersection.IndexOf(columnIndex);
+                    dataRow[position] = cellValue;
                 }
 
                 dataTable.Rows.Add(dataRow);
