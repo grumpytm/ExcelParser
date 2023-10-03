@@ -14,7 +14,7 @@ try
         new ParserItems.SheetDetails
         {
             SheetName = "Sheet1",
-            ColumnIndexes = new List<int> { 0, 1, 2, 5, 9 }
+            ColumnIndexes = new List<int> { 0, 2, 3, 1, 9 }
         }
     };
 
