@@ -26,7 +26,7 @@ try
     var sheetName = "Employees"
 
     using var stream = File.OpenRead(filePath);
-    var content = helper.ParseSheet<Nomenclator>(stream, sheetName);
+    var content = helper.ParseSheet<Employees>(stream, sheetName);
 
     // use a datagrid to display data for example
     BindingSource bindingSource = new BindingSource { DataSource = content.ToList() };
