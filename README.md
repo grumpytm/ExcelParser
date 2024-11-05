@@ -13,7 +13,7 @@ public record Employees()
     public string Name { get; set; }
 
     [Column("D")]
-    public int Department { get; set; }
+    public string Department { get; set; }
 }
 ```
 then inside the app use the parser:
