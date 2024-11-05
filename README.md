@@ -1,7 +1,7 @@
 # Description
 I needed something out of the box to parse an Excel file via [MiniExcel](https://github.com/mini-software/MiniExcel) library without relying on too many extra 3rd party packages.
 > [!WARNING]  
-> Currently the MiniExcel library doesn't supported .xls files, only .cvs, .xlsx and .xlsm.
+> Currently the MiniExcel library doesn't support .xls files, only .cvs, .xlsx and .xlsm.
 ## Sample usage:
 First create a record:
 ```
