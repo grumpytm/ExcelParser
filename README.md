@@ -7,13 +7,13 @@ First create a record:
 public record Employees()
 {
     [Column("A")]
-    public string Id { get; set; }
+    public int Id { get; set; }
 
     [Column("B")]
     public string Name { get; set; }
 
     [Column("D")]
-    public float Department { get; set; }
+    public int Department { get; set; }
 }
 ```
 then inside the app use the parser:
